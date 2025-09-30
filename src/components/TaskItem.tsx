@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Task, TaskPriority } from '../types'
 import { format } from 'date-fns'
+import { parseDateInLocalTimezone } from '../utils/dateParser'
 
 interface TaskItemProps {
   task: Task
@@ -37,7 +38,7 @@ export const TaskItem = ({ task, onToggle, onUpdate, onDelete }: TaskItemProps) 
         editTitle.trim(),
         editDescription.trim() || undefined,
         editPriority,
-        editDueDate ? new Date(editDueDate) : undefined,
+        editDueDate ? parseDateInLocalTimezone(editDueDate) : undefined,
         tags
       )
       setIsEditing(false)
