@@ -1,0 +1,59 @@
+version: 2
+updates:
+  # npm依存関係の更新
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "nyasuto"
+    assignees:
+      - "nyasuto"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "javascript"
+    # 自動マージ用のグループ設定
+    groups:
+      # パッチバージョンは一つのPRにまとめる
+      patch-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+      # 開発依存関係のマイナーバージョン更新
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+    # 除外設定（必要に応じて）
+    ignore:
+      # 例: 特定のパッケージを無視
+      # - dependency-name: "package-name"
+      #   versions: ["1.x", "2.x"]
+
+  # GitHub Actions の更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "nyasuto"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
