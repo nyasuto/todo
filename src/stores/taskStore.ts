@@ -5,6 +5,7 @@ import { loadTasks, saveTasks } from '../utils/storage'
 interface TaskStore {
   tasks: Task[]
   addTask: (title: string, description?: string) => void
+  updateTask: (id: string, title: string, description?: string) => void
   deleteTask: (id: string) => void
   toggleTask: (id: string) => void
   loadTasks: () => void
@@ -29,6 +30,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     }
 
     const tasks = [...get().tasks, newTask]
+    set({ tasks })
+    saveTasks(tasks)
+  },
+
+  updateTask: (id: string, title: string, description?: string) => {
+    const tasks = get().tasks.map((task) =>
+      task.id === id
+        ? {
+            ...task,
+            title,
+            description,
+            updatedAt: new Date(),
+          }
+        : task
+    )
     set({ tasks })
     saveTasks(tasks)
   },
