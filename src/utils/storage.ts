@@ -11,8 +11,11 @@ export const loadTasks = (): Task[] => {
     // Parse date strings back to Date objects
     return tasks.map((task: Task) => ({
       ...task,
+      priority: task.priority || 'medium',
+      tags: task.tags || [],
       createdAt: new Date(task.createdAt),
       updatedAt: new Date(task.updatedAt),
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
     }))
   } catch (error) {
     console.error('Failed to load tasks:', error)

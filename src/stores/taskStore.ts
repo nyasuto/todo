@@ -1,11 +1,24 @@
 import { create } from 'zustand'
-import { Task } from '../types'
+import { Task, TaskPriority } from '../types'
 import { loadTasks, saveTasks } from '../utils/storage'
 
 interface TaskStore {
   tasks: Task[]
-  addTask: (title: string, description?: string) => void
-  updateTask: (id: string, title: string, description?: string) => void
+  addTask: (
+    title: string,
+    description?: string,
+    priority?: TaskPriority,
+    dueDate?: Date,
+    tags?: string[]
+  ) => void
+  updateTask: (
+    id: string,
+    title: string,
+    description?: string,
+    priority?: TaskPriority,
+    dueDate?: Date,
+    tags?: string[]
+  ) => void
   deleteTask: (id: string) => void
   toggleTask: (id: string) => void
   loadTasks: () => void
@@ -19,12 +32,21 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     set({ tasks })
   },
 
-  addTask: (title: string, description?: string) => {
+  addTask: (
+    title: string,
+    description?: string,
+    priority: TaskPriority = 'medium',
+    dueDate?: Date,
+    tags: string[] = []
+  ) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title,
       description,
       status: 'pending',
+      priority,
+      dueDate,
+      tags,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -34,13 +56,23 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     saveTasks(tasks)
   },
 
-  updateTask: (id: string, title: string, description?: string) => {
+  updateTask: (
+    id: string,
+    title: string,
+    description?: string,
+    priority?: TaskPriority,
+    dueDate?: Date,
+    tags?: string[]
+  ) => {
     const tasks = get().tasks.map((task) =>
       task.id === id
         ? {
             ...task,
             title,
             description,
+            priority: priority ?? task.priority,
+            dueDate: dueDate === undefined ? task.dueDate : dueDate,
+            tags: tags ?? task.tags,
             updatedAt: new Date(),
           }
         : task

@@ -1,10 +1,14 @@
+export type TaskPriority = 'low' | 'medium' | 'high'
+export type TaskStatus = 'pending' | 'completed'
+
 export interface Task {
   id: string
   title: string
   description?: string
-  status: 'pending' | 'completed'
+  status: TaskStatus
+  priority: TaskPriority
+  dueDate?: Date
+  tags: string[]
   createdAt: Date
   updatedAt: Date
 }
-
-export type TaskStatus = Task['status']
