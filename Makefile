@@ -1,4 +1,4 @@
-.PHONY: help install dev build preview clean lint format type-check quality
+.PHONY: help install dev build preview clean lint format type-check test test-coverage quality ci
 
 # デフォルトターゲット
 help: ## ヘルプを表示
@@ -20,7 +20,7 @@ preview: build ## ビルド結果をプレビュー
 	npm run preview
 
 clean: ## ビルド成果物を削除
-	rm -rf dist node_modules/.vite
+	rm -rf dist node_modules/.vite coverage
 	@echo "クリーンアップ完了"
 
 lint: ## リントを実行
@@ -32,8 +32,17 @@ format: ## コードをフォーマット
 type-check: ## TypeScript型チェック
 	npm run type-check
 
-quality: type-check lint ## すべての品質チェックを実行
+test: ## テストを実行
+	npm run test -- --run
+
+test-coverage: ## カバレッジ付きでテストを実行
+	npm run test:coverage
+
+quality: type-check lint test ## すべての品質チェックを実行
 	@echo "すべての品質チェックが完了しました"
+
+ci: quality build ## CI環境での全チェック
+	@echo "CI チェックが完了しました"
 
 # セットアップ（初回のみ）
 setup: install ## 初回セットアップ
