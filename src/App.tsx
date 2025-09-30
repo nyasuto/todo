@@ -1,14 +1,41 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useTaskStore } from './stores/taskStore'
 import { TaskInput } from './components/TaskInput'
 import { TaskList } from './components/TaskList'
+import { FilterBar, SortOption } from './components/FilterBar'
+import { TaskStatus } from './types'
 
 function App() {
-  const { tasks, addTask, deleteTask, toggleTask, loadTasks } = useTaskStore()
+  const { tasks, addTask, updateTask, deleteTask, toggleTask, loadTasks } = useTaskStore()
+  const [filter, setFilter] = useState<TaskStatus | 'all'>('all')
+  const [sortBy, setSortBy] = useState<SortOption>('createdAt')
 
   useEffect(() => {
     loadTasks()
   }, [loadTasks])
+
+  const filteredAndSortedTasks = useMemo(() => {
+    let filtered = tasks
+
+    // フィルタリング
+    if (filter !== 'all') {
+      filtered = filtered.filter((task) => task.status === filter)
+    }
+
+    // ソート
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === 'title') {
+        return a.title.localeCompare(b.title)
+      }
+      if (sortBy === 'updatedAt') {
+        return b.updatedAt.getTime() - a.updatedAt.getTime()
+      }
+      // デフォルトは作成日時（新しい順）
+      return b.createdAt.getTime() - a.createdAt.getTime()
+    })
+
+    return sorted
+  }, [tasks, filter, sortBy])
 
   const pendingTasks = tasks.filter((task) => task.status === 'pending')
   const completedTasks = tasks.filter((task) => task.status === 'completed')
@@ -30,7 +57,18 @@ function App() {
 
         <div className="bg-white rounded-xl shadow-lg p-6">
           <TaskInput onAdd={addTask} />
-          <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
+          <FilterBar
+            filter={filter}
+            onFilterChange={setFilter}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
+          <TaskList
+            tasks={filteredAndSortedTasks}
+            onToggle={toggleTask}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+          />
         </div>
       </div>
     </div>
