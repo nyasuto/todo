@@ -9,6 +9,7 @@ function App() {
   const { tasks, addTask, updateTask, deleteTask, toggleTask, loadTasks } = useTaskStore()
   const [filter, setFilter] = useState<TaskStatus | 'all'>('all')
   const [sortBy, setSortBy] = useState<SortOption>('createdAt')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     loadTasks()
@@ -22,7 +23,19 @@ function App() {
       filtered = filtered.filter((task) => task.status === filter)
     }
 
+    // 検索
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (task) =>
+          task.title.toLowerCase().includes(query) ||
+          task.description?.toLowerCase().includes(query) ||
+          task.tags.some((tag) => tag.toLowerCase().includes(query))
+      )
+    }
+
     // ソート
+    const priorityOrder = { high: 0, medium: 1, low: 2 }
     const sorted = [...filtered].sort((a, b) => {
       if (sortBy === 'title') {
         return a.title.localeCompare(b.title)
@@ -30,12 +43,15 @@ function App() {
       if (sortBy === 'updatedAt') {
         return b.updatedAt.getTime() - a.updatedAt.getTime()
       }
+      if (sortBy === 'priority') {
+        return priorityOrder[a.priority] - priorityOrder[b.priority]
+      }
       // デフォルトは作成日時（新しい順）
       return b.createdAt.getTime() - a.createdAt.getTime()
     })
 
     return sorted
-  }, [tasks, filter, sortBy])
+  }, [tasks, filter, sortBy, searchQuery])
 
   const pendingTasks = tasks.filter((task) => task.status === 'pending')
   const completedTasks = tasks.filter((task) => task.status === 'completed')
@@ -62,6 +78,8 @@ function App() {
             onFilterChange={setFilter}
             sortBy={sortBy}
             onSortChange={setSortBy}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
           />
           <TaskList
             tasks={filteredAndSortedTasks}

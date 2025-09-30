@@ -1,13 +1,15 @@
 import { useState } from 'react'
+import { TaskPriority } from '../types'
 
 interface TaskInputProps {
-  onAdd: (title: string) => void
+  onAdd: (title: string, description?: string, priority?: TaskPriority) => void
 }
 
 const MAX_TITLE_LENGTH = 100
 
 export const TaskInput = ({ onAdd }: TaskInputProps) => {
   const [title, setTitle] = useState('')
+  const [priority, setPriority] = useState<TaskPriority>('medium')
   const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,8 +28,9 @@ export const TaskInput = ({ onAdd }: TaskInputProps) => {
       return
     }
 
-    onAdd(trimmedTitle)
+    onAdd(trimmedTitle, undefined, priority)
     setTitle('')
+    setPriority('medium')
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,9 +38,21 @@ export const TaskInput = ({ onAdd }: TaskInputProps) => {
     if (error) setError('')
   }
 
+  const priorityColors = {
+    low: 'bg-green-100 text-green-700 border-green-300',
+    medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+    high: 'bg-red-100 text-red-700 border-red-300',
+  }
+
+  const priorityLabels = {
+    low: '低',
+    medium: '中',
+    high: '高',
+  }
+
   return (
     <form onSubmit={handleSubmit} className="mb-6">
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex gap-2">
           <div className="flex-1">
             <input
@@ -66,6 +81,25 @@ export const TaskInput = ({ onAdd }: TaskInputProps) => {
           >
             追加
           </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">優先度:</label>
+          <div className="flex gap-1">
+            {(['low', 'medium', 'high'] as TaskPriority[]).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPriority(p)}
+                className={`px-3 py-1 text-sm rounded border transition-colors ${
+                  priority === p
+                    ? priorityColors[p]
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {priorityLabels[p]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </form>
